@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 # Create your models here.
 
@@ -7,6 +8,7 @@ class Todo(models.Model):
     des = models.TextField()
     date_created = models.DateTimeField(_("Date Created"), auto_now_add=True)
     done = models.BooleanField(_("Done"), default=False)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title

@@ -41,9 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'apis.apps.ApisConfig',
+    'rest_framework.authtoken',
     'rest_framework',
+
+    #my apps 
+    'apis.apps.ApisConfig',
     'todos.apps.TodosConfig',
+    'account.apps.AccountConfig',
 
 ]
 
@@ -74,7 +78,7 @@ TEMPLATES = [
         },
     },
 ]
-
+AUTH_USER_MODEL = 'account.Account'
 WSGI_APPLICATION = 'todo_app.wsgi.application'
 
 
@@ -108,9 +112,12 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES':[
-        'rest_framework.permissions.AllowAny',
-    ]
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
 }
 
 # Internationalization
