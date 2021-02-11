@@ -87,8 +87,9 @@ def upDateTodo(request,pk):
         data = {}
         if serializer.is_valid():
             serializer.save()
-            data["success"] = "updated successfully"
-            return Response(data=data)
+            todo_snipit = Todo.objects.get(id=pk)
+            serializer = TodoSerializer(todo_snipit)
+            return Response(serializer.data)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 #DELETE TODO BY ID
@@ -109,9 +110,11 @@ def deleteTodo(request,pk):
         data = {}
         if op:
             data['success'] = 'deleted successfully'
+            s =status.HTTP_204_NO_CONTENT
         else:
             data['failure'] = 'deletion failed'
-        return Response(data=data)
+            s = status.HTTP_400_BAD_REQUEST
+        return Response(data=data,status=s)
 
 
 
@@ -122,29 +125,32 @@ def deleteTodo(request,pk):
 #LOGIN
 class ObtainAuthTokenView(APIView):
 
-	authentication_classes = []
-	permission_classes = []
-	def post(self, request):
-		context = {}
+    authentication_classes = []
+    permission_classes = []
+    def post(self, request):
+        context = {}
 
-		email = request.POST.get('username')
-		password = request.POST.get('password')
-		account = authenticate(email=email, password=password)
-		if account:
-			try:
-				token = Token.objects.get(user=account)
-			except Token.DoesNotExist:
-				token = Token.objects.create(user=account)
-			context['response'] = 'Successfully authenticated.'
-			context['pk'] = account.pk
-			context['username'] = account.username         
-			context['email'] = email.lower()
-			context['token'] = token.key
-		else:
-			context['response'] = 'Error'
-			context['error_message'] = 'Invalid credentials'
+        email = request.POST.get('username')
+        password = request.POST.get('password')
+        account = authenticate(email=email, password=password)
+        if account:
+            try:
+                token = Token.objects.get(user=account)
+            except Token.DoesNotExist:
+                token = Token.objects.create(user=account)
+            context['response'] = 'Successfully authenticated.'
+            context['pk'] = account.pk
+            context['username'] = account.username         
+            context['email'] = email.lower()
+            context['token'] = token.key
+            s=status.HTTP_200_OK
+        else:
+            s=status.HTTP_400_BAD_REQUEST
+            context['response'] = 'Error'
+            context['error_message'] = 'Invalid credentials'
+        
 
-		return Response(context)
+        return Response(context,status=s)
 
 
 
@@ -173,7 +179,9 @@ def reg_user(request):
             data['username']    = account.username
             token = Token.objects.get(user=account).key
             data['token']=token
+            s=status.HTTP_200_OK
         else:
+            s=status.HTTP_400_BAD_REQUEST
             data = serializer.errors
         
-        return Response(data)
+        return Response(data,status=s)
